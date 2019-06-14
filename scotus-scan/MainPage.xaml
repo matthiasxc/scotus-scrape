@@ -1,0 +1,296 @@
+﻿<Page xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:scotus_scan"
+      xmlns:ignore="http://www.galasoft.ch/ignore"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+      x:Class="scotus_scan.MainPage"
+      mc:Ignorable="d ignore"
+      xmlns:converters="using:scotus_scan.Converters"
+      DataContext="{Binding Main, Source={StaticResource Locator}}">
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisConverter" />
+        <converters:ReverseBoolToVisibilityConverter x:Key="ReverseBoolToVisConverter" />
+        <converters:StringFormatConverter x:Key="StringFormatConverter" />
+        <converters:VoteResultToBrushConverter x:Key="VoteToBrushConverter" />
+        <converters:DecisionToBrushConverter x:Key="DecisionToBrushConverter" />
+
+        <converters:IntToJusticeImageConverter x:Key="IntToJusticeImageConverter" />
+        <converters:IntToJusticeTextConverter x:Key="IntToJusticeTextConverter" />
+    </Page.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="500" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Background="#FF1F1F1F" >
+            <Button Content="Load Scotus File"
+                    HorizontalAlignment="Stretch"
+                    Margin="0,0,0,20"
+                    FontSize="24"
+                    Command="{Binding LoadFileViewModel.LoadFileWithPickerCommand, Mode=OneWay}"
+                    Foreground="White" />
+
+            <Button Content="Parse Scotus File"
+                    HorizontalAlignment="Stretch"
+                    Margin="0,0,0,20"
+                    FontSize="24"
+                    Command="{Binding ParseScotusFileCommand, Mode=OneWay}"
+                    Foreground="White" />
+
+            <!--<Button Content="Send message"
+                    HorizontalAlignment="Stretch"
+                    Margin="0,0,0,20"
+                    FontSize="24"
+                    Command="{Binding SendMessageCommand, Mode=OneWay}"
+                    Foreground="White" />
+
+            <TextBlock TextWrapping="Wrap"
+                       Text="{Binding WelcomeTitle}"
+                       FontFamily="Segoe UI Light"
+                       FontSize="24"
+                       Margin="0,0,0,20"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       Foreground="White" />
+
+            <TextBlock FontFamily="Segoe UI Light"
+                       FontSize="20"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       Foreground="White"
+                       Text="{Binding Clock}" />-->
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height=".5*" />
+
+                <RowDefinition Height=".5*" />
+            </Grid.RowDefinitions>
+            <Grid x:Name="VoteResult" >
+                <Grid Width="125" Height="125" Background="{Binding SelectedCase.VoteSplit, Converter={StaticResource VoteToBrushConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Margin="8">
+                            <TextBlock Text="{Binding SelectedCase.VoteDetails.MajorityCount}" FontSize="38" />
+                            <TextBlock Text=" - " FontSize="38"/>
+                            <TextBlock Text="{Binding SelectedCase.VoteDetails.MinorityCount}" FontSize="38" />
+                        </StackPanel>
+                        <!--<TextBlock Text="{Binding VoteSplit}" />-->
+
+                    </StackPanel>
+                </Grid>
+
+            </Grid>
+            <Grid x:Name="Title" Grid.Row="1">
+                <TextBlock Margin="8" Text="{Binding SelectedCase.CaseName}" FontSize="22" FontFamily="Segoe UI Semibold" />
+            </Grid>
+            <Grid x:Name="MajorityResults" Grid.Row="2" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="Majority Votes" FontSize="22" FontFamily="Segoe UI Semibold" Margin="8" />
+
+                <TextBlock Text="{Binding SelectedCase.VoteDetails.MajorityString}" TextWrapping="Wrap" Grid.Row="1" Margin="8"/>
+                <GridView Margin="8" ItemsSource="{Binding SelectedCase.VoteDetails.MajorityVotes}" Grid.Row="2" >
+                    <GridView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Width="75" Height="125">
+                                <Image Source="{Binding Converter={StaticResource IntToJusticeImageConverter}}" />
+                                <TextBlock Text="{Binding}" Visibility="Collapsed" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+            </Grid>
+            <Grid x:Name="MinorityResults" Grid.Row="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="MinorityVotes" FontSize="22" FontFamily="Segoe UI Semibold" Margin="8" />
+                <TextBlock Text="{Binding SelectedCase.VoteDetails.MinorityString}" TextWrapping="Wrap" Grid.Row="1" Margin="8"/>
+                <GridView Margin="8" ItemsSource="{Binding SelectedCase.VoteDetails.MinorityVotes}" Grid.Row="2" >
+                    <GridView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Width="75" Height="125">
+                                <Image Source="{Binding Converter={StaticResource IntToJusticeImageConverter}}" />
+                                <TextBlock Text="{Binding}" Visibility="Collapsed" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid x:Name="VariableControl" Height="330">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width=".5*" />
+                    <ColumnDefinition Width=".5*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="8">
+                        <TextBox Text="Max Majority:" Margin="4" />
+                        <Slider Value="{Binding MaxMajorityCount, Mode=TwoWay}" Width="100" Maximum="9" LargeChange="1" Minimum="3" ValueChanged="SliderValueChanged" />
+                        <TextBlock Text="{Binding MaxMajorityCount}" Margin="4" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="8">
+                        <TextBox Text="Min Majority:" Margin="4" />
+                        <Slider Value="{Binding MinMajorityCount, Mode=TwoWay}" Width="100" Maximum="9" LargeChange="1" Minimum="3" ValueChanged="SliderValueChanged" />
+                        <TextBlock Text="{Binding MinMajorityCount}" Margin="4" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="8">
+                        <TextBox Text="Max Minority:" Margin="4" />
+                        <Slider Value="{Binding MaxMinorityCount, Mode=TwoWay}" Width="100" Maximum="4" LargeChange="1" Minimum="0" ValueChanged="SliderValueChanged" />
+                        <TextBlock Text="{Binding MaxMinorityCount}" Margin="4" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="8">
+                        <TextBox Text="Min Minority:" Margin="4" />
+                        <Slider Value="{Binding MinMinorityCount, Mode=TwoWay}" Width="100" Maximum="4" LargeChange="1" Minimum="0" ValueChanged="SliderValueChanged"  />
+                        <TextBlock Text="{Binding MinMinorityCount}" Margin="4" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding FilteredScotusCases.Count}" FontSize="36" />
+                        <TextBlock Text=" Cases" FontSize="36" />
+                    </StackPanel>
+                </StackPanel>
+                <Grid Grid.Column="1" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <CheckBox Content="Use Specific Majority" IsChecked="{Binding CheckMajorityVote, Mode=TwoWay}" />
+                    <TextBlock Text="Majority Must Include:" Margin="8" Grid.Row="1" FontFamily="Segoe UI Semibold"  />
+                    <GridView x:Name="MajJusticeList" IsMultiSelectCheckBoxEnabled="True" ItemsSource="{Binding MajJusticeList}" Grid.Row="2" Margin="8" SelectionMode="Multiple" 
+                              SelectionChanged="MajJusticeList_SelectionChanged">
+                        <GridView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Width="90" Height="120">
+                                    <Image Source="{Binding Converter={StaticResource IntToJusticeImageConverter}}" Stretch="UniformToFill" />
+                                    <Border VerticalAlignment="Bottom" Background="{ThemeResource SystemControlHighlightListAccentMediumBrush}">
+                                        <TextBlock  Text="{Binding Converter={StaticResource IntToJusticeTextConverter}}" 
+                                                Margin="4"  
+                                                HorizontalAlignment="Center" 
+                                                VerticalAlignment="Bottom"
+                                                FontSize="11"
+                                               Foreground="#FFFFFFFF"
+                                               FontFamily="Segoe UI Semibold"/>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                    </GridView>
+                </Grid>
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <CheckBox Content="Use Specific Minority" IsChecked="{Binding CheckMinorityVote, Mode=TwoWay}"  />
+                    <TextBlock Text="Minority Must Include:" Margin="8" Grid.Row="1" FontFamily="Segoe UI Semibold" />
+                    <GridView x:Name="MinJusticeList" IsMultiSelectCheckBoxEnabled="True" ItemsSource="{Binding MinJusticeList}" Grid.Row="2" Margin="8" SelectionMode="Multiple"
+                              SelectionChanged="MinJusticeList_SelectionChanged">
+                        <GridView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Width="90" Height="120">
+                                    <Image Source="{Binding Converter={StaticResource IntToJusticeImageConverter}}" Stretch="UniformToFill" />
+                                    <Border VerticalAlignment="Bottom" Background="{ThemeResource SystemControlHighlightListAccentMediumBrush}">
+                                    <TextBlock Text="{Binding Converter={StaticResource IntToJusticeTextConverter}}" 
+                                               Margin="4" HorizontalAlignment="Center" 
+                                               FontSize="11"
+                                               Foreground="#FFFFFFFF"
+                                               FontFamily="Segoe UI Semibold"/>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                    </GridView>
+                </Grid>
+            </Grid>
+
+            <GridView x:Name="VizOfCases" Grid.Row="1" ItemsSource="{Binding FilteredScotusCases}" SelectedItem="{Binding SelectedCase, Mode=TwoWay}">
+                <GridView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Width="50" Height="50" Background="{Binding VoteSplit, Converter={StaticResource VoteToBrushConverter}}">
+                        <!--<Grid Width="50" Height="50" Background="{Binding PartisanDecision, Converter={StaticResource DecisionToBrushConverter}}">-->
+                        
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Margin="8">
+                                    <TextBlock Text="{Binding VoteDetails.MajorityCount}" FontSize="18" />
+                                    <TextBlock Text=" - " FontSize="18"/>
+                                    <TextBlock Text="{Binding VoteDetails.MinorityCount}" FontSize="18" />
+                                </StackPanel>
+                                
+                                <!--<TextBlock Text="{Binding VoteSplit}" />-->
+
+                            </StackPanel>
+                            <TextBlock Text="{Binding DecisionDate, Converter={StaticResource StringFormatConverter}, ConverterParameter='MM-yy'}" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="4" FontSize="12" />
+                        </Grid>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+            <!--<ListView x:Name="ScotusDataDisplay" Grid.Row="1" ItemsSource="{Binding ScotusCases}" >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" Margin="8">
+                                <TextBlock Text="{Binding VoteDetails.MajorityCount}" FontSize="34" />
+                                <TextBlock Text=" - " FontSize="34"/>
+                                <TextBlock Text="{Binding VoteDetails.MinorityCount}" FontSize="34" />
+                            </StackPanel>
+                            <TextBlock VerticalAlignment="Top" Margin="8,50,8,8"  Text="{Binding DecisionDate}" />
+                            <Grid Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width=".5*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height=".5*" />
+                                    <RowDefinition Height=".5*" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{Binding CaseName}" Margin="4,8,8,8"/>
+                                <StackPanel Grid.Row="1">
+                                    <TextBlock Text="MAJORITY" FontWeight="Bold" Margin="4"/>
+                                    <TextBlock Grid.Row="1" 
+                                           Text="{Binding VoteDetails.MajorityString}" Margin="4,4,4,8" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="2">
+                                    <TextBlock Text="MINORTY" FontWeight="Bold" Margin="4" />
+                                    <TextBlock Text="{Binding VoteDetails.MinorityString}" Margin="4,4,4,8" />
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+
+            </ListView>-->
+        </Grid>
+    </Grid>
+</Page>
